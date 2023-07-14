@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from './user/entities/user.entity';
+import { Roles } from './roles/entities/role.entity';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
@@ -16,7 +16,7 @@ import { ConfigModule } from '@nestjs/config';
       username: 'root',
       password: '',
       database: 'test',
-      entities: [Users],
+      entities: [Users, Roles],
       synchronize: true,
     }),
     ConfigModule.forRoot({ isGlobal: true }),

@@ -1,22 +1,34 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
+import { IsEmail } from 'class-validator';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
+  ManyToOne,
+} from 'typeorm';
+import { Roles } from 'src/roles/entities/role.entity';
 @Entity()
+@Unique(['email'])
 export class Users {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: false })
   firstName: string;
 
-  @Column()
+  @Column({ nullable: false })
   lastName: string;
 
-  @Column()
+  @Column({ nullable: false })
+  @IsEmail()
   email: string;
 
-  @Column()
+  @Column({ nullable: false })
   isActive: boolean;
 
-  @Column()
+  @Column({ nullable: false })
   password: string;
+
+  @ManyToOne((type) => Roles, (role) => role.id)
+  role: Roles;
 }

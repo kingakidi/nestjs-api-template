@@ -17,4 +17,7 @@ export class CreateUserDto {
   @ApiProperty()
   @IsString()
   password: string;
+
+  @ApiProperty()
+  roleId: string | number;
 }
