@@ -19,8 +19,14 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    // check if the mail already exist
+    const isEmail = await this.userService.findByEmail(createUserDto.email);
+
+    createUserDto['roleId'] = 1;
+    if (!isEmail) return this.userService.create(createUserDto);
+
+    throw new BadRequestException('Email Already exist');
   }
 
   @Get()

@@ -1,9 +1,16 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Request,
+  UseGuards,
+  Get,
+} from '@nestjs/common';
 import { SignInAuthDto } from './dto/sign-auth.dto';
 import { UserService } from 'src/user/user.service';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-
+import { AuthGuard } from './auth.guard';
 import { JwtService } from '@nestjs/jwt';
 
 @ApiTags()
@@ -28,11 +35,17 @@ export class AuthController {
     // call for signin services
 
     if (user.password !== signInAuthDto.password)
-      throw new UnauthorizedException(`invalid password provided `);
+      throw new BadRequestException(`invalid password provided `);
 
     const payload = { sub: user.id, username: user.email };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    return req.user;
   }
 }

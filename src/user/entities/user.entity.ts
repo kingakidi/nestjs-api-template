@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Roles } from 'src/roles/entities/role.entity';
 @Entity()
@@ -29,6 +30,8 @@ export class Users {
   @Column({ nullable: false })
   password: string;
 
-  @ManyToOne((type) => Roles, (role) => role.id)
+  @ManyToOne(() => Roles, (role) => role.id, {
+    nullable: false,
+  })
   role: Roles;
 }

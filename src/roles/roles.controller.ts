@@ -11,15 +11,21 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ApiTags } from '@nestjs/swagger';
-
+import { BadRequestException } from '@nestjs/common/exceptions';
 @ApiTags('roles')
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
-    return this.rolesService.create(createRoleDto);
+  async create(@Body() createRoleDto: CreateRoleDto) {
+    // check if role already exist
+
+    const isRole = await this.rolesService.findByTitle(createRoleDto.title);
+
+    if (!isRole) return this.rolesService.create(createRoleDto);
+
+    throw new BadRequestException('Role already exist ');
   }
 
   @Get()
