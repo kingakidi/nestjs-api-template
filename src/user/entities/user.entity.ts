@@ -5,9 +5,14 @@ import {
   PrimaryGeneratedColumn,
   Unique,
   ManyToOne,
-  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { Roles } from 'src/roles/entities/role.entity';
+
+import * as bcrypt from 'bcrypt';
+
 @Entity()
 @Unique(['email'])
 export class Users {
@@ -24,11 +29,22 @@ export class Users {
   @IsEmail()
   email: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 1 })
   isActive: boolean;
 
   @Column({ nullable: false })
   password: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 
   @ManyToOne(() => Roles, (role) => role.id, {
     nullable: false,

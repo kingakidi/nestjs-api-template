@@ -6,12 +6,13 @@ import {
   UseGuards,
   Get,
 } from '@nestjs/common';
-import { SignInAuthDto } from './dto/sign-auth.dto';
+import { signInDto } from './dto/sign-auth.dto';
 import { UserService } from 'src/user/user.service';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from './auth.guard';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @ApiTags()
 @Controller('auth')
@@ -22,24 +23,26 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  async create(@Body() signInAuthDto: SignInAuthDto) {
+  async create(@Body() signInDto: signInDto) {
     // check if the user exist
 
-    const user = await this.userService.findByEmail(signInAuthDto.email);
+    const user = await this.userService.findByEmail(signInDto.email);
 
     if (!user)
       throw new BadRequestException(
-        `user with ${signInAuthDto.email} does not exist`,
+        `user with ${signInDto.email} does not exist`,
       );
 
     // call for signin services
 
-    if (user.password !== signInAuthDto.password)
-      throw new BadRequestException(`invalid password provided `);
+    const isMatch = await bcrypt.compare(signInDto.password, user.password);
+
+    if (!isMatch) throw new BadRequestException(`invalid password provided `);
 
     const payload = { sub: user.id, username: user.email };
+
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      token: await this.jwtService.signAsync(payload),
     };
   }
 

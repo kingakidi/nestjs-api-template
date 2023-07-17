@@ -12,21 +12,30 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { BadRequestException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger/dist/decorators';
+import { RolesService } from 'src/roles/roles.service';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly roleService: RolesService,
+  ) {}
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     // check if the mail already exist
     const isEmail = await this.userService.findByEmail(createUserDto.email);
 
-    createUserDto['roleId'] = 1;
-    if (!isEmail) return this.userService.create(createUserDto);
+    // get the roles
 
-    throw new BadRequestException('Email Already exist');
+    if (isEmail) throw new BadRequestException('Email Already exist');
+
+    const user = await this.userService.create(createUserDto, 1);
+
+    const { password, role, ...result } = user;
+
+    return result;
   }
 
   @Get()
